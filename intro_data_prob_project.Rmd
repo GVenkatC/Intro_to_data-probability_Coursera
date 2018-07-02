@@ -1,0 +1,146 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+### Load data
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+
+* * *
+
+## Part 1: Data
+Introduction to BRFSS
+
+In 1984, the Centers for Disease Control and Prevention (CDC) initiated the state-based Behavioral Risk Factor Surveillance System (BRFSS)--a cross-sectional telephone survey that state health departments conduct monthly over landline telephones and cellular telephones with a standardized questionnaire and technical and methodologic assistance from CDC. BRFSS is used to collect prevalence data among adult U.S. residents regarding their risk behaviors and preventive health practices that can affect their health status. Respondent data are forwarded to CDC to be aggregated for each state, returned with standard tabulations, and published at year's end by each state. In 2011, more than 500,000 interviews were conducted in the states, the District of Columbia, and participating U.S. territories and other geographic areas.
+
+The BRFSS Process
+
+The BRFSS questionnaire was developed in collaboration between CDC and public health departments in each of the states, the District of Columbia, Puerto Rico, and the U.S. Virgin Islands. Data derived from the questionnaire provide health departments, public health officials and policymakers with behavioral information that, when combined with mortality and morbidity statistics, inform public health officials as they establish health-related policies and priorities as well as address and assess strategies to promote good health.
+
+Annual questionnaire construction
+The BRFSS questionnaire is comprised of an annual standard core, a biannual rotating core, optional modules, and state-added questions.
+  Standard Core Questions: The portion of the questionnaire that is included each year and must be asked by all states. Each year, the core includes questions about emerging or “late-breaking” health issues. After one year, these questions are either discontinued or incorporated into the fixed core, rotating core, or optional modules.
+  Rotating Core Questions: The portion of the questionnaire asked by all states on an every other year basis.
+  Optional Modules: Sets of standardized questions on various topics that each state may select and include in its questionnaire. Once selected, a module must be used in its entirety and asked of all eligible respondents. If an optional module is modified in any way (e.g., if a question is omitted), then the questions will be treated as state-added questions.
+  
+Data Collection:
+The states are free to choose who collects the data and the data may be collected by the state internally or by a university or by contracting with a private company. Regardless of who conducts the data collection, it is done according to the BRFSS protocols
+
+Sampling Design:
+In order to conduct the BRFSS, states obtain samples of telephone numbers from CDC. States then review their sampling methodology with a state statistician and CDC to make sure data collection procedures are in place to follow the methodology.The BRFSS uses two samples: one for landline telephone respondents and one for cellular telephone respondents. Since landline telephones are often shared among persons living within a residence, household sampling is used in the landline sample. Household sampling requires interviewers to collect information on the number of adults living within a residence and then select randomly from all eligible adults. Cellular telephone respondents are weighted as single adult households.
+
+Landline Sampling: Disproportionate stratified sampling (DDS) has been used for the landline sample since 2003. The DSS design attempts to find a way of differentiating, before sampling begins, between a set of telephone numbers that contains a large proportion of target numbers (the high-density block) and a set that contains a smaller proportion of target numbers (the medium-density block). It is possible to create more than two groups, but for BRFSS, only two groups are used. DSS sampling telephone numbers is more efficient than simple random sampling.
+
+Cellular Telephone Sample: cellular telephone sample is randomly generated from a sampling frame of confirmed cellular area code and prefix combinations. Cellular telephone respondents are randomly selected with each having equal probability of selection. States complete approximately 20% of their completed interviews with respondents on cell phones. CDC provides a separate cellular telephone sample to each state, according to the total number of completes that the state is targeting for that year. Some of the numbers in the cell phone sample will reach respondents who have moved into other states. Each state completes the core BRFSS interview with respondents from other states. Data from out-of-state interviews are transferred to the appropriate states at the end of each data-collection period.
+
+Sample Size: The BRFSS goal is to support at least 4,000 interviews per state each year. Factors influencing sample size include the cost involved in data collection for a larger sample and the states’ need for obtaining estimates for subpopulations within states.
+
+Generlizability: From the details provided on thr BRFSS website we undertsand that the BRFSS survey is an observational study that uses random stratified sampling to obtain a representative sample from each state. In order to provide adequate sample sizes for geographically defined populations of interest in each state, it is stated in the data user guide that many states sample disproportionately from strata that corresponds to sub state regions. 
+
+Causality: Since the BRFSS survey is an observational study we can only make inferences based on the observations to infer associations however we would not be able to establish causal relationships.
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+
+For the first question I would like to explore the relationship between the general health of the US population and the amount of sleep that the respondents get.
+
+Interest Factor: As someone who sleeps less than 5 hours a day and still feels to be in excellent health condition I would like to know the average amount of time that people sleep and the correlation with their general health status.
+
+**Research quesion 2:**
+
+Is there any correlation between a level of education obtained and overall life satisfaction? Further, are there any noticeable differences in this correlation between genders.
+
+Interest factor: Are there any noticeable trends in overall life satisfaction for those that push hard to achieve high levels of formal education? As the first in my family to graduate university and a strong propenet of self advancement through eductation, I am interested to see if there is any noticeable trends between those who complete more eductation and reported satisfaction.
+
+**Research quesion 3:**
+
+Is there any correlation between reported level of income earned and general health? Further, are there any noticeable differences in this correlation between genders.
+
+Interest factor: Are there any noticeable trends in general health for those who maintain high paying jobs? One would think jobs of this nature would come with benefits that would promote general health like medical insurance and cash flow for healthy habits. Inversely, positions that come with higher income could come with higher levels of stress and more hours on the job. This analysis should help identify some higher level trends that could drive future analysis on the topic.
+
+## Part 3: Exploratory data analysis
+
+
+
+**Research quesion 1:**
+
+```{r}
+q1 <- filter(brfss2013, sleptim1 != "NA", genhlth != "NA", sex != "NA", sleptim1 <100 ) %>% group_by(genhlth) %>% summarise(mn_sleep = mean(sleptim1))
+
+kable(q1) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+
+ggplot(q1 , aes(genhlth, mn_sleep)) + geom_point(aes(genhlth, mn_sleep), shape = 16, size = 4, color = "RoyalBlue4") + theme_bw()+labs(title = "Mean of Sleep Hours vs General Health Rating", x= "General Health Rating", y="Average hours of Sleep")
+```
+
+Based on the above plot and the numbers for the average hours of sleep we can clearly see that there is a relationship between the number of hours of sleep and the general health rating where the number of sleeping hours is highest for subjects with excellent health, however there might be the case that the subjects with excellent health are able to have a better quality sleep and are able to sleep longer due to their excellent health. This needs to be investigated further.
+
+**Research quesion 2:**
+
+```{r}
+q2 <- select(brfss2013, lsatisfy , sex, educa) %>% filter(!is.na(lsatisfy), !is.na(sex), !is.na(educa))
+
+q2_1 <- q2 %>% group_by(lsatisfy) %>% summarise(count=n())
+
+  kable(q2_1) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+
+q2_2 <- q2 %>% group_by(educa) %>% summarise(count=n())
+
+  kable(q2_2) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+
+q2_3 <- q2 %>% group_by(sex) %>% summarise(count=n())
+
+  kable(q2_3) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+ 
+ggplot(data = q2, aes(x = lsatisfy , y = educa ))+ geom_count (color = "RoyalBlue4") + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ facet_grid(. ~  sex) +
+     xlab("Satisfaction With Life") +
+     ylab ("Education Level")
+
+```
+
+Both genders are beahaving similarly in the observation that satisfation levles are greatest (Satisfied, Very Satisfied) for those that have at least completed highschool or the equivalent.  Most respondents in this survey have completed at least high school, which may indicate there is some sort of systematic bias in the survey.
+
+Finally, it is interesting to note the make up of the outlier cases. The handful of cases that reported never attending any education report either being satisfied or very satisfied with life. This result along with the reported cases of disastifaction with life (or very dissatisfied) across those who have complete high school or better indicate that eductation levels are not perfectly correlated with life satisfcation. 
+
+**Research quesion 3:**
+
+```{r , warning=FALSE}
+q3 <- select(brfss2013, genhlth ,income2) %>% filter(!is.na(genhlth), !is.na(income2))
+
+q3_1 <- q3 %>% group_by(genhlth) %>% summarise(count=n())
+
+kable(q3_1) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+
+q3_2 <- q3%>% group_by(income2) %>%   summarise(count=n())
+
+kable(q3_2) %>% kable_styling(bootstrap_options = c("striped", "responsive"), full_width = F, position = "left")
+
+ggplot(data = q3, aes(x = genhlth , y = income2 ))+ geom_count (color = "RoyalBlue4") + xlab("General Health ") + ylab ("Income Level") + labs( title = "Income Level vs General Health")
+
+```
+
+More than 50 percent of the surveyed population reported an income level greater than 35,000 USD. It appears that there is a postive relationship between earning more income and those who reported health levels of at least good.
+
+Further, when we look at reported numbers of very good and excellent respondents, the number is trending up as we move up the income scale. This provides some evidence that more research could help identify detailed relationships.  
+
